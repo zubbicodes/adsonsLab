@@ -12,7 +12,9 @@ export default function ControlPanel({ onGenerateReport }: ControlPanelProps) {
   const [poNumber, setPoNumber] = useState('');
   const [date, setDate] = useState(new Date().toLocaleDateString('en-US'));
   const [itemNumber, setItemNumber] = useState('');
-  const [shrinkageRequirement, setShrinkageRequirement] = useState('ASTCC 135-15 = -50 ISO 6330 - 50 Temp');
+  const [shrinkageRequirement, setShrinkageRequirement] = useState('ASTCC 135-15 = -50');
+  const [requirementOption, setRequirementOption] = useState<'ASTCC' | 'ISO' | 'OTHER'>('ASTCC');
+  const [customRequirement, setCustomRequirement] = useState('');
   const [temp, setTemp] = useState('+/- 3%');
   const [dimensionalChange, setDimensionalChange] = useState('-1.65%');
   const [ph, setPh] = useState('5.2');
@@ -157,12 +159,65 @@ export default function ControlPanel({ onGenerateReport }: ControlPanelProps) {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Shrinkage Requirement
               </label>
-              <input
-                type="text"
-                value={shrinkageRequirement}
-                onChange={(e) => setShrinkageRequirement(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
-              />
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="shrinkageRequirement"
+                    className="h-4 w-4 text-blue-600"
+                    checked={requirementOption === 'ASTCC'}
+                    onChange={() => {
+                      setRequirementOption('ASTCC');
+                      const value = 'ASTCC 135-15 = -50';
+                      setShrinkageRequirement(value);
+                    }}
+                  />
+                  <span className="text-sm text-gray-800">ASTCC 135-15 = -50</span>
+                </label>
+
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="shrinkageRequirement"
+                    className="h-4 w-4 text-blue-600"
+                    checked={requirementOption === 'ISO'}
+                    onChange={() => {
+                      setRequirementOption('ISO');
+                      const value = 'ISO 6330 - 50 Temp';
+                      setShrinkageRequirement(value);
+                    }}
+                  />
+                  <span className="text-sm text-gray-800">ISO 6330 - 50 Temp</span>
+                </label>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="shrinkageRequirement"
+                      className="h-4 w-4 text-blue-600"
+                      checked={requirementOption === 'OTHER'}
+                      onChange={() => {
+                        setRequirementOption('OTHER');
+                        setShrinkageRequirement(customRequirement);
+                      }}
+                    />
+                    <span className="text-sm text-gray-800">OTHER</span>
+                  </label>
+                  {requirementOption === 'OTHER' && (
+                    <input
+                      type="text"
+                      value={customRequirement}
+                      onChange={(e) => {
+                        setCustomRequirement(e.target.value);
+                        setShrinkageRequirement(e.target.value);
+                      }}
+                      placeholder="Enter custom shrinkage requirement"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                    />
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
