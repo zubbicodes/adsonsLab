@@ -11,11 +11,19 @@ export default function ShrinkageReport({ report }: ShrinkageReportProps) {
   const reportRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = () => {
+    const style = document.createElement('style');
+    style.setAttribute('data-print-orientation', 'portrait');
+    style.media = 'print';
+    style.innerHTML = '@page { size: A4 portrait; margin: 0 !important; }';
+    document.head.appendChild(style);
     window.print();
+    setTimeout(() => {
+      document.head.removeChild(style);
+    }, 0);
   };
 
   const handleDownloadPDF = () => {
-    window.print();
+    handlePrint();
   };
 
   return (

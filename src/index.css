@@ -37,8 +37,6 @@ div[style*="z-index: 10000"],
   body {
     margin: 0 !important;
     padding: 0 !important;
-    width: 210mm !important;
-    height: 297mm !important;
     overflow: hidden !important;
   }
 
@@ -64,5 +62,18 @@ div[style*="z-index: 10000"],
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
+  }
+
+  /* Only print the designated print area */
+  body * {
+    visibility: hidden !important;
+  }
+  .print-area, .print-area * {
+    visibility: visible !important;
+  }
+  .print-area {
+    position: absolute !important;
+    inset: 0 !important;
+    margin: 0 !important;
   }
 }

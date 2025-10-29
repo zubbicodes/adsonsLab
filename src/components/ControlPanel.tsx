@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FileText, Download, Plus } from 'lucide-react';
+import { FileText, Plus } from 'lucide-react';
 import { supabase, Product, ShrinkageReport } from '../lib/supabase';
 
 interface ControlPanelProps {
@@ -85,7 +85,7 @@ export default function ControlPanel({ onGenerateReport }: ControlPanelProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl w-full">
+    <div className="bg-white rounded-2xl shadow-xl p-6 w-full">
       <div className="flex items-center gap-3 mb-8">
         <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
           <FileText className="w-6 h-6 text-white" />

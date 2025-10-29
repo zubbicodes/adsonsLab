@@ -2,13 +2,14 @@ import { useState } from 'react';
 import ControlPanel from './components/ControlPanel';
 import ShrinkageReport from './components/ShrinkageReport';
 import { ShrinkageReport as ShrinkageReportType } from './lib/supabase';
-import { ArrowLeft, FileText, Package, ClipboardList, Settings } from 'lucide-react';
-import ProductsManager from './components/ProductsManager';
-import ReportsList from './components/ReportsList';
+import { ArrowLeft, FileText, Package, ClipboardList, Settings, Upload } from 'lucide-react';
+import ProductsManager from './components/ProductsManager.tsx';
+import ReportsList from './components/ReportsList.tsx';
+import LoadingPaperTool from './components/LoadingPaperTool.tsx';
 
 function App() {
   const [currentReport, setCurrentReport] = useState<ShrinkageReportType | null>(null);
-  const [activeTab, setActiveTab] = useState<'generate' | 'products' | 'reports' | 'settings'>('generate');
+  const [activeTab, setActiveTab] = useState<'generate' | 'loading' | 'products' | 'reports' | 'settings'>('generate');
 
   const handleGenerateReport = (report: ShrinkageReportType) => {
     setCurrentReport(report);
@@ -23,7 +24,7 @@ function App() {
       {currentReport ? (
         <div className="min-h-screen bg-gray-100 print:bg-white" data-no-watermark>
           <div className="print:hidden bg-white border-b border-gray-200 shadow-sm">
-            <div className="max-w-7xl mx-auto px-4 py-3">
+            <div className="px-4 py-3">
               <button
                 onClick={handleBackFromReport}
                 className="flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-all"
@@ -33,14 +34,14 @@ function App() {
               </button>
             </div>
           </div>
-          <div className="flex items-center justify-center min-h-screen p-4 print:p-0" data-no-watermark>
+          <div className="flex items-center justify-center min-h-screen p-4 print:p-0 print-area" data-no-watermark>
             <ShrinkageReport report={currentReport} />
           </div>
         </div>
       ) : (
         <div className="min-h-screen" data-no-watermark>
           <div className="print:hidden">
-            <div className="max-w-7xl mx-auto px-4 py-6">
+            <div className="px-4 py-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-3 bg-slate-900 text-white rounded-xl">
@@ -55,9 +56,9 @@ function App() {
             </div>
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 pb-8">
-            <div className="grid grid-cols-12 gap-6">
-              <aside className="col-span-12 md:col-span-3 lg:col-span-3 xl:col-span-3">
+          <div className="px-0 pb-0">
+            <div className="grid grid-cols-12 gap-4">
+              <aside className="col-span-12 md:col-span-3 lg:col-span-3 xl:col-span-2">
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                   <nav className="p-2">
                     <button
@@ -70,6 +71,17 @@ function App() {
                     >
                       <FileText className="w-5 h-5" />
                       Generate Report
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('loading')}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                        activeTab === 'loading'
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Upload className="w-5 h-5" />
+                      Loading Paper
                     </button>
                     <button
                       onClick={() => setActiveTab('products')}
@@ -108,16 +120,19 @@ function App() {
                 </div>
               </aside>
 
-              <main className="col-span-12 md:col-span-9 lg:col-span-9 xl:col-span-9">
-                <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-4 md:p-6">
+              <main className="col-span-12 md:col-span-9 lg:col-span-9 xl:col-span-10">
+                <div className="bg-white rounded-none md:rounded-2xl shadow-none md:shadow-xl border-0 md:border border-gray-200 p-2 md:p-4">
                   {activeTab === 'generate' && (
                     <ControlPanel onGenerateReport={handleGenerateReport} />
+                  )}
+                  {activeTab === 'loading' && (
+                    <LoadingPaperTool />
                   )}
                   {activeTab === 'products' && (
                     <ProductsManager />
                   )}
                   {activeTab === 'reports' && (
-                    <ReportsList onOpenReport={(r) => setCurrentReport(r)} />
+                    <ReportsList onOpenReport={(r: ShrinkageReportType) => setCurrentReport(r)} />
                   )}
                   {activeTab === 'settings' && (
                     <div className="text-gray-600">
