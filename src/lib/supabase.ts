@@ -31,3 +31,30 @@ export type ShrinkageReport = {
   created_at: string;
   updated_at: string;
 };
+
+export type LoadingPaper = {
+  id: string;
+  dc_no: string;
+  po_no: string;
+  date: string;
+  acc_name: string;
+  acc_address: string;
+  remarks: string;
+  header_note: string;
+  created_at: string;
+};
+
+export type LoadingPaperItemRow = {
+  id: string;
+  paper_id: string;
+  sr: number;
+  detail_name: string;
+  unit: string;
+  job_no: string;
+  pack: number;
+  qty: number;
+  weight: number;
+  po_no: string;
+  dc_no: string;
+  remarks: string;
+};

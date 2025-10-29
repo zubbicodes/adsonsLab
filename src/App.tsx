@@ -2,14 +2,15 @@ import { useState } from 'react';
 import ControlPanel from './components/ControlPanel';
 import ShrinkageReport from './components/ShrinkageReport';
 import { ShrinkageReport as ShrinkageReportType } from './lib/supabase';
-import { ArrowLeft, FileText, Package, ClipboardList, Settings, Upload } from 'lucide-react';
+import { ArrowLeft, FileText, Package, ClipboardList, Settings, Upload, Archive } from 'lucide-react';
 import ProductsManager from './components/ProductsManager.tsx';
 import ReportsList from './components/ReportsList.tsx';
 import LoadingPaperTool from './components/LoadingPaperTool.tsx';
+import LoadingPapersList from './components/LoadingPapersList.tsx';
 
 function App() {
   const [currentReport, setCurrentReport] = useState<ShrinkageReportType | null>(null);
-  const [activeTab, setActiveTab] = useState<'generate' | 'loading' | 'products' | 'reports' | 'settings'>('generate');
+  const [activeTab, setActiveTab] = useState<'generate' | 'loading' | 'loading_saved' | 'products' | 'reports' | 'settings'>('generate');
 
   const handleGenerateReport = (report: ShrinkageReportType) => {
     setCurrentReport(report);
@@ -95,6 +96,17 @@ function App() {
                       Products
                     </button>
                     <button
+                      onClick={() => setActiveTab('loading_saved')}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                        activeTab === 'loading_saved'
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Archive className="w-5 h-5" />
+                      Saved Loading Papers
+                    </button>
+                    <button
                       onClick={() => setActiveTab('reports')}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
                         activeTab === 'reports'
@@ -130,6 +142,9 @@ function App() {
                   )}
                   {activeTab === 'products' && (
                     <ProductsManager />
+                  )}
+                  {activeTab === 'loading_saved' && (
+                    <LoadingPapersList />
                   )}
                   {activeTab === 'reports' && (
                     <ReportsList onOpenReport={(r: ShrinkageReportType) => setCurrentReport(r)} />

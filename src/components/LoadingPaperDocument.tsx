@@ -26,7 +26,7 @@ export type LoadingPaperData = {
   headerNote?: string;
 };
 
-export default function LoadingPaperDocument({ data, onChangeRemark, onDeleteItem, onChangeHeaderNote }: { data: LoadingPaperData; onChangeRemark?: (sr: number, value: string) => void; onDeleteItem?: (sr: number) => void; onChangeHeaderNote?: (value: string) => void }) {
+export default function LoadingPaperDocument({ data, onChangeRemark, onDeleteItem, onChangeHeaderNote, onGenerateFromItem }: { data: LoadingPaperData; onChangeRemark?: (sr: number, value: string) => void; onDeleteItem?: (sr: number) => void; onChangeHeaderNote?: (value: string) => void; onGenerateFromItem?: (sr: number) => void }) {
   const ref = useRef<HTMLDivElement>(null);
 
   const fmtDate = (iso: string) => {

@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { Upload, FileJson, Printer, Download, AlertCircle } from 'lucide-react';
+import { Upload, FileJson, Printer, Download, AlertCircle, Save } from 'lucide-react';
 import LoadingPaperDocument, { LoadingPaperData, LoadingPaperItem } from './LoadingPaperDocument';
 
 export default function LoadingPaperTool() {
@@ -125,6 +125,69 @@ export default function LoadingPaperTool() {
     setData({ ...data, headerNote: value });
   };
 
+  const handleSave = async () => {
+    if (!data) return;
+    try {
+      const { data: paper, error: err1 } = await (window as any).supabaseClient?.from?.('loading_papers')
+        ? (window as any).supabaseClient.from('loading_papers').insert([
+            {
+              dc_no: data.dcNo,
+              po_no: data.poNo,
+              date: data.date,
+              acc_name: data.accName,
+              acc_address: data.accAddress,
+              remarks: data.remarks,
+              header_note: data.headerNote || '',
+            },
+          ]).select().single()
+        : await (async () => {
+            // Fallback: use local supabase import
+            const { supabase } = await import('../lib/supabase');
+            return await supabase.from('loading_papers').insert([
+              {
+                dc_no: data.dcNo,
+                po_no: data.poNo,
+                date: data.date,
+                acc_name: data.accName,
+                acc_address: data.accAddress,
+                remarks: data.remarks,
+                header_note: data.headerNote || '',
+              },
+            ]).select().single();
+          })();
+
+      if (err1) throw err1;
+      const paperId = (paper as any)?.id;
+      if (!paperId) throw new Error('Failed to create loading paper');
+
+      const itemsPayload = data.items.map((it) => ({
+        paper_id: paperId,
+        sr: it.sr,
+        detail_name: it.detailName,
+        unit: it.unit,
+        job_no: it.jobNo,
+        pack: it.pack,
+        qty: it.qty,
+        weight: it.weight,
+        po_no: it.poNo || '',
+        dc_no: it.dcNo || '',
+        remarks: it.remarks || '',
+      }));
+
+      const { error: err2 } = await (window as any).supabaseClient?.from?.('loading_paper_items')
+        ? (window as any).supabaseClient.from('loading_paper_items').insert(itemsPayload)
+        : await (async () => {
+            const { supabase } = await import('../lib/supabase');
+            return await supabase.from('loading_paper_items').insert(itemsPayload);
+          })();
+      if (err2) throw err2;
+      alert('Loading Paper saved successfully');
+    } catch (e: any) {
+      console.error(e);
+      alert(e?.message || 'Failed to save Loading Paper');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -150,6 +213,12 @@ export default function LoadingPaperTool() {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800"
               >
                 <Printer className="w-4 h-4" /> Print / PDF
+              </button>
+              <button
+                onClick={handleSave}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+              >
+                <Save className="w-4 h-4" /> Save
               </button>
             </>
           )}
