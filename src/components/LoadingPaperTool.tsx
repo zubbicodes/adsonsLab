@@ -1,10 +1,40 @@
 import { useMemo, useRef, useState } from 'react';
-import { Upload, FileJson, Printer, Download, AlertCircle, Save } from 'lucide-react';
+import { Upload, FileJson, Printer, Download, AlertCircle, Save, Settings } from 'lucide-react';
 import LoadingPaperDocument, { LoadingPaperData, LoadingPaperItem } from './LoadingPaperDocument';
+
+export type ColumnVisibility = {
+  sr: boolean;
+  poNo: boolean;
+  jobNo: boolean;
+  dcNo: boolean;
+  item: boolean;
+  pack: boolean;
+  qty: boolean;
+  unit: boolean;
+  netWeight: boolean;
+  netWeightPerCtn: boolean;
+  grossWeightPerCtn: boolean;
+};
+
+const defaultColumnVisibility: ColumnVisibility = {
+  sr: true,
+  poNo: true,
+  jobNo: true,
+  dcNo: true,
+  item: true,
+  pack: true,
+  qty: true,
+  unit: true,
+  netWeight: true,
+  netWeightPerCtn: true,
+  grossWeightPerCtn: true,
+};
 
 export default function LoadingPaperTool() {
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<LoadingPaperData | null>(null);
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(defaultColumnVisibility);
+  const [showSettings, setShowSettings] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handlePick = () => inputRef.current?.click();
@@ -94,9 +124,9 @@ export default function LoadingPaperTool() {
     }, 0);
   };
 
-  const handleChangeRemark = (sr: number, value: string) => {
+  const handleChangeItemName = (sr: number, value: string) => {
     if (!data) return;
-    const items = data.items.map((it) => (it.sr === sr ? { ...it, remarks: value } : it));
+    const items = data.items.map((it) => (it.sr === sr ? { ...it, editedItemName: value } : it));
     setData({ ...data, items });
   };
 
@@ -123,6 +153,10 @@ export default function LoadingPaperTool() {
   const handleChangeHeaderNote = (value: string) => {
     if (!data) return;
     setData({ ...data, headerNote: value });
+  };
+
+  const toggleColumn = (column: keyof ColumnVisibility) => {
+    setColumnVisibility((prev) => ({ ...prev, [column]: !prev[column] }));
   };
 
   const handleSave = async () => {
@@ -200,6 +234,20 @@ export default function LoadingPaperTool() {
             className="hidden"
             onChange={onFileChange}
           />
+          {data && (
+            <div className="flex items-center gap-2 mr-2 pr-2 border-r border-gray-200">
+              <button
+                onClick={() => setShowSettings(!showSettings)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
+                  showSettings
+                    ? 'bg-blue-50 border-blue-300 text-blue-700'
+                    : 'border-gray-200 hover:bg-gray-50 text-gray-700'
+                }`}
+              >
+                <Settings className="w-4 h-4" /> Settings
+              </button>
+            </div>
+          )}
           <button
             onClick={handlePick}
             className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700"
@@ -225,6 +273,121 @@ export default function LoadingPaperTool() {
         </div>
       </div>
 
+      {data && showSettings && (
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-gray-900">Column Visibility</h3>
+            <button
+              onClick={() => setShowSettings(false)}
+              className="text-gray-400 hover:text-gray-600 text-sm"
+            >
+              Close
+            </button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={columnVisibility.sr}
+                onChange={() => toggleColumn('sr')}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">Sr</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={columnVisibility.poNo}
+                onChange={() => toggleColumn('poNo')}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">PO No</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={columnVisibility.jobNo}
+                onChange={() => toggleColumn('jobNo')}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">Job No</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={columnVisibility.dcNo}
+                onChange={() => toggleColumn('dcNo')}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">DC No</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={columnVisibility.item}
+                onChange={() => toggleColumn('item')}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">Item</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={columnVisibility.pack}
+                onChange={() => toggleColumn('pack')}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">Pack</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={columnVisibility.qty}
+                onChange={() => toggleColumn('qty')}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">Qty</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={columnVisibility.unit}
+                onChange={() => toggleColumn('unit')}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">Unit</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={columnVisibility.netWeight}
+                onChange={() => toggleColumn('netWeight')}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">Net. Weight</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={columnVisibility.netWeightPerCtn}
+                onChange={() => toggleColumn('netWeightPerCtn')}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">Net weight/ctn</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={columnVisibility.grossWeightPerCtn}
+                onChange={() => toggleColumn('grossWeightPerCtn')}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">Gross weight/ctn</span>
+            </label>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="flex items-start gap-3 p-3 rounded-lg border border-red-200 bg-red-50 text-red-700">
           <AlertCircle className="w-4 h-4 mt-0.5" />
@@ -245,9 +408,10 @@ export default function LoadingPaperTool() {
           <div className="w-full max-w-[297mm]">
             <LoadingPaperDocument
               data={data}
-              onChangeRemark={handleChangeRemark}
               onDeleteItem={handleDeleteItem}
               onChangeHeaderNote={handleChangeHeaderNote}
+              onChangeItemName={handleChangeItemName}
+              columnVisibility={columnVisibility}
             />
           </div>
         </div>
