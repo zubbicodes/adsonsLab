@@ -14,6 +14,7 @@ export type LoadingPaperItem = {
   dcNo?: string;
   remarks?: string;
   editedItemName?: string;
+  editedGrossWeightPerCtn?: number;
 };
 
 export type LoadingPaperData = {
@@ -28,7 +29,7 @@ export type LoadingPaperData = {
   headerNote?: string;
 };
 
-export default function LoadingPaperDocument({ data, onDeleteItem, onChangeHeaderNote, onChangeItemName, columnVisibility, onGenerateFromItem }: { data: LoadingPaperData; onDeleteItem?: (sr: number) => void; onChangeHeaderNote?: (value: string) => void; onChangeItemName?: (sr: number, value: string) => void; columnVisibility?: ColumnVisibility; onGenerateFromItem?: (sr: number) => void }) {
+export default function LoadingPaperDocument({ data, onDeleteItem, onChangeHeaderNote, onChangeItemName, onChangeGrossWeightPerCtn, columnVisibility, onGenerateFromItem }: { data: LoadingPaperData; onDeleteItem?: (sr: number) => void; onChangeHeaderNote?: (value: string) => void; onChangeItemName?: (sr: number, value: string) => void; onChangeGrossWeightPerCtn?: (sr: number, value: number) => void; columnVisibility?: ColumnVisibility; onGenerateFromItem?: (sr: number) => void }) {
   const ref = useRef<HTMLDivElement>(null);
 
   const fmtDate = (iso: string) => {
@@ -79,6 +80,7 @@ export default function LoadingPaperDocument({ data, onDeleteItem, onChangeHeade
     item: true,
     pack: true,
     qty: true,
+    qtyPerPack: true,
     unit: true,
     netWeight: true,
     netWeightPerCtn: true,
@@ -153,6 +155,7 @@ export default function LoadingPaperDocument({ data, onDeleteItem, onChangeHeade
                     {visibility.item && <th className="px-4 py-2 border-b">Item</th>}
                     {visibility.pack && <th className="px-4 py-2 border-b">Pack</th>}
                     {visibility.qty && <th className="px-4 py-2 border-b">Qty</th>}
+                    {visibility.qtyPerPack && <th className="px-4 py-2 border-b">Qty/Pack</th>}
                     {visibility.unit && <th className="px-4 py-2 border-b">Unit</th>}
                     {visibility.netWeight && <th className="px-4 py-2 border-b">Net. Weight</th>}
                     {visibility.netWeightPerCtn && <th className="px-4 py-2 border-b">Net weight/ctn</th>}
@@ -181,10 +184,27 @@ export default function LoadingPaperDocument({ data, onDeleteItem, onChangeHeade
                       )}
                       {visibility.pack && <td className="px-4 py-2 border-b text-slate-700">{it.pack}</td>}
                       {visibility.qty && <td className="px-4 py-2 border-b text-slate-700">{it.qty}</td>}
+                      {visibility.qtyPerPack && <td className="px-4 py-2 border-b text-slate-700">{it.pack > 0 ? (it.qty / it.pack).toFixed(2) : '0.00'}</td>}
                       {visibility.unit && <td className="px-4 py-2 border-b text-slate-700">{it.unit}</td>}
                       {visibility.netWeight && <td className="px-4 py-2 border-b text-slate-700">{fmtWeight(it.weight)}</td>}
                       {visibility.netWeightPerCtn && <td className="px-4 py-2 border-b text-slate-700">{fmtWeight(it.pack > 0 ? it.weight / it.pack : 0)}</td>}
-                      {visibility.grossWeightPerCtn && <td className="px-4 py-2 border-b text-slate-700">{fmtWeight(it.pack > 0 ? (it.weight / it.pack) + 0.8 : 0)}</td>}
+                      {visibility.grossWeightPerCtn && (
+                        <td className="px-4 py-2 border-b text-slate-700">
+                          <input
+                            type="number"
+                            step="0.001"
+                            value={it.editedGrossWeightPerCtn !== undefined ? it.editedGrossWeightPerCtn : (it.pack > 0 ? (it.weight / it.pack) + 0.8 : 0)}
+                            onChange={(e) => {
+                              const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                              if (!isNaN(value) && onChangeGrossWeightPerCtn) {
+                                onChangeGrossWeightPerCtn(it.sr, value);
+                              }
+                            }}
+                            className="w-full px-2 py-1 rounded border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none print:hidden"
+                          />
+                          <div className="hidden print:block">{fmtWeight(it.editedGrossWeightPerCtn !== undefined ? it.editedGrossWeightPerCtn : (it.pack > 0 ? (it.weight / it.pack) + 0.8 : 0))}</div>
+                        </td>
+                      )}
                       <td className="px-4 py-2 border-b text-right print:hidden">
                         <button
                           onClick={() => onDeleteItem && onDeleteItem(it.sr)}
@@ -201,6 +221,7 @@ export default function LoadingPaperDocument({ data, onDeleteItem, onChangeHeade
                     <td className="px-4 py-2 border-t" colSpan={getTotalsColSpan()}>Totals</td>
                     {visibility.pack && <td className="px-4 py-2 border-t">{data.totals.pack}</td>}
                     {visibility.qty && <td className="px-4 py-2 border-t">{data.totals.qty}</td>}
+                    {visibility.qtyPerPack && <td className="px-4 py-2 border-t"></td>}
                     {visibility.unit && <td className="px-4 py-2 border-t"></td>}
                     {visibility.netWeight && <td className="px-4 py-2 border-t">{fmtWeight(data.totals.weight)}</td>}
                     {visibility.netWeightPerCtn && <td className="px-4 py-2 border-t"></td>}

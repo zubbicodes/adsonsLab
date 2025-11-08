@@ -10,6 +10,7 @@ export type ColumnVisibility = {
   item: boolean;
   pack: boolean;
   qty: boolean;
+  qtyPerPack: boolean;
   unit: boolean;
   netWeight: boolean;
   netWeightPerCtn: boolean;
@@ -24,6 +25,7 @@ const defaultColumnVisibility: ColumnVisibility = {
   item: true,
   pack: true,
   qty: true,
+  qtyPerPack: true,
   unit: true,
   netWeight: true,
   netWeightPerCtn: true,
@@ -127,6 +129,12 @@ export default function LoadingPaperTool() {
   const handleChangeItemName = (sr: number, value: string) => {
     if (!data) return;
     const items = data.items.map((it) => (it.sr === sr ? { ...it, editedItemName: value } : it));
+    setData({ ...data, items });
+  };
+
+  const handleChangeGrossWeightPerCtn = (sr: number, value: number) => {
+    if (!data) return;
+    const items = data.items.map((it) => (it.sr === sr ? { ...it, editedGrossWeightPerCtn: value } : it));
     setData({ ...data, items });
   };
 
@@ -351,6 +359,15 @@ export default function LoadingPaperTool() {
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
+                checked={columnVisibility.qtyPerPack}
+                onChange={() => toggleColumn('qtyPerPack')}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">Qty/Pack</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
                 checked={columnVisibility.unit}
                 onChange={() => toggleColumn('unit')}
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
@@ -411,6 +428,7 @@ export default function LoadingPaperTool() {
               onDeleteItem={handleDeleteItem}
               onChangeHeaderNote={handleChangeHeaderNote}
               onChangeItemName={handleChangeItemName}
+              onChangeGrossWeightPerCtn={handleChangeGrossWeightPerCtn}
               columnVisibility={columnVisibility}
             />
           </div>
